@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chess</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body id="body">
+    <h1>Chess</h1>
+    <canvas id="canvas" width="600" height="600"></canvas>
+    
+    <script type="text/javascript" src="utils.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+    <script>
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext('2d');
+
+        // mouse position
+        var mouseX;
+        var mouseY;
+        canvas.onmousemove = (e) => {
+            mouseX = e.clientX - canvas.getBoundingClientRect().x;
+            mouseY = e.clientY - canvas.getBoundingClientRect().y;
+        }
+
+        function fill(c) {
+            ctx.fillStyle = c;
+        }
+        function rect(x, y, w, h) {
+            ctx.fillRect(x, y, w, h);
+        }
+
+        // Initialize
+        init();
+
+        // game loop
+        window.setInterval(() => {
+            // Reset canvas
+            ctx.clearRect(0, 0, 600, 600); // clear canvas
+
+            // Run
+            run();
+        }, 100)
+
+    </script>
+</body>
+</html>
