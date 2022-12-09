@@ -16,7 +16,7 @@ for (let row = 0; row < 8; row++) {
 }
 
 // Initialize board
-let turnBoard = false;
+let turnBoard = true;
 let turn = 0;
 function init() {
 
@@ -74,7 +74,12 @@ canvas.addEventListener("mousedown", (e) => {
         targetR = Math.floor(mouseY / (600/8));
     }
     
-    let targetC = Math.floor(mouseX / (600/8));
+    let targetC;
+    if (turn === 0 || !turnBoard) {
+        targetC = Math.floor(mouseX / (600/8));
+    } else {
+        targetC = 7 - Math.floor(mouseX / (600/8));
+    }
     let targetSquare = squares[targetR*8 + targetC];
     let targetPiece = targetSquare.piece;
 
@@ -144,7 +149,7 @@ function run() {
             if (turn === 0 || !turnBoard) {
                 ctx.translate(col*Square.size, (7-row)*Square.size);
             } else {
-                ctx.translate(col*Square.size, (row)*Square.size);
+                ctx.translate((7-col)*Square.size, (row)*Square.size);
             }       
 
             squares[row*8 + col].draw();
