@@ -1,28 +1,6 @@
 
-let squareSize = 600/8;
+// Generate grid
 let squares = [];
-class Square {
-    constructor(color) {
-        this.color = color;
-        this.piece = null;
-        this.isSelected = false;
-    }
-    draw() {
-        
-        if (this.isSelected) {
-            fill("yellow");
-            rect(0, 0, squareSize, squareSize);
-            fill(this.color);
-            rect(squareSize*0.05, squareSize*0.05, squareSize*0.9, squareSize*0.9);
-        } else {
-            fill(this.color);
-            rect(0, 0, squareSize, squareSize);
-        }
-        if (this.piece != null) {
-            this.piece.draw();
-        }
-    }
-}
 for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
 
@@ -37,153 +15,12 @@ for (let row = 0; row < 8; row++) {
     }
 }
 
-class Piece {
-    constructor(player) {
-        this.player = player;
-        this.hasMoved = false;
-    }
-    draw() {
-        rect(squareSize/4, squareSize/4, squareSize/2, squareSize/2);
-        if (this.player == 1) {
-            fill("black");
-            rect(squareSize*(7/16), squareSize*(7/16), squareSize/8, squareSize/8);
-        }
-    }
-}
-class Pawn extends Piece {
-    draw() {
-        fill("red");
-        super.draw();
-    }
-    canMove(curR, curC, targetR, targetC) {
-        
-        let deltaR = targetR - curR;
-        let deltaC = targetC - curC;
-        let occupied = squares[targetR*8 + targetC].piece !== null;
-        return(
-            (deltaR === (this.player === 0? 1: -1) && deltaC === 0 && !occupied) ||
-            (deltaR === (this.player === 0? 1: -1) && (deltaC === 1 || deltaC === -1) && occupied) ||
-
-            (deltaR === (this.player === 0? 2: -2) && deltaC === 0 && !occupied && !this.hasMoved)
-        );
-    }
-}
-class Rook extends Piece {
-    draw() {
-        fill("orange");
-        super.draw();
-    }
-    canMove(curR, curC, targetR, targetC) {
-
-        let deltaR = targetR - curR;
-        let deltaC = targetC - curC;
-        let delta = Math.abs(deltaR);
-        let stepR = Math.max(-1, Math.min(deltaR, 1));
-        let stepC = Math.max(-1, Math.min(deltaC, 1));
-
-        // Check if the move is straight
-        if (deltaR !== 0 && deltaR !== 0) {
-            return false;
-        }
-
-        // Check intermediate squares
-        for (let i = 1; i < delta; i++) {
-            if (squares[(curR+stepR*i)*8 + (curC+stepC*i)].piece !== null) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
-class Knight extends Piece {
-    draw() {
-        fill("gold");
-        super.draw();
-    }
-    canMove(curR, curC, targetR, targetC) {
-        let deltaR = Math.abs(targetR - curR);
-        let deltaC = Math.abs(targetC - curC);
-
-        return (
-            (deltaR == 2 && deltaC == 1) ||
-            (deltaR == 1 && deltaC == 2)
-        );
-    }
-}
-class Bishop extends Piece {
-    draw() {
-        fill("gray");
-        super.draw();
-    }
-    canMove(curR, curC, targetR, targetC) {
-        
-        let deltaR = targetR - curR;
-        let deltaC = targetC - curC;
-        let delta = Math.abs(deltaR);
-        let stepR = Math.max(-1, Math.min(deltaR, 1));
-        let stepC = Math.max(-1, Math.min(deltaC, 1));
-
-        // Check if the move is diagonal
-        if (Math.abs(deltaR) !== Math.abs(deltaC)) {
-            return false;
-        }
-        
-        // Check intermediate squares
-        for (let i = 1; i < delta; i++) {
-            if (squares[(curR+stepR*i)*8 + (curC+stepC*i)].piece !== null) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
-class Queen extends Piece {
-    draw() {
-        fill("green");
-        super.draw();
-    }
-    canMove(curR, curC, targetR, targetC) {
-        
-        let deltaR = targetR - curR;
-        let deltaC = targetC - curC;
-        let delta = Math.abs(deltaR);
-        let stepR = Math.max(-1, Math.min(deltaR, 1));
-        let stepC = Math.max(-1, Math.min(deltaC, 1));
-
-        // Check if the move is straight or diagonal
-        if (!(
-            (Math.abs(deltaR) === Math.abs(deltaC)) ||
-            (deltaR === 0 || deltaC === 0)
-        )) {
-            return false;
-        }
-        
-        // Check intermediate squares
-        for (let i = 1; i < delta; i++) {
-            if (squares[(curR+stepR*i)*8 + (curC+stepC*i)].piece !== null) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
-class King extends Piece {
-    draw() {
-        fill("blue");
-        super.draw();
-    }
-    canMove(curR, curC, targetR, targetC) {
-        let deltaR = Math.abs(targetR - curR);
-        let deltaC = Math.abs(targetC - curC);
-
-        return (
-            (deltaR <= 1 && deltaC <= 1)
-        );
-    }
-}
-
+// Initialize board
 let turnBoard = false;
+let turn = 0;
 function init() {
+
+    // White
     squares[1*8 + 0].piece = new Pawn(0);
     squares[1*8 + 1].piece = new Pawn(0);
     squares[1*8 + 2].piece = new Pawn(0);
@@ -201,6 +38,7 @@ function init() {
     squares[0*8 + 3].piece = new King(0);
     squares[0*8 + 4].piece = new Queen(0);
 
+    // Black
     squares[6*8 + 0].piece = new Pawn(1);
     squares[6*8 + 1].piece = new Pawn(1);
     squares[6*8 + 2].piece = new Pawn(1);
@@ -217,10 +55,9 @@ function init() {
     squares[7*8 + 5].piece = new Bishop(1);
     squares[7*8 + 3].piece = new King(1);
     squares[7*8 + 4].piece = new Queen(1);
-
 }
 
-let turn = 0;
+// Clicking
 let selectedR;
 let selectedC;
 let selectedSquare = null;
@@ -279,7 +116,6 @@ canvas.addEventListener("mousedown", (e) => {
                         continue;
                     }
                     if (curPiece.player !== turn && curPiece.canMove(row, col, kingR, kingC)) {
-                        console.log(true);
                         isInCheck = true;
                     }
                 }
@@ -306,11 +142,10 @@ function run() {
             ctx.save();
 
             if (turn === 0 || !turnBoard) {
-                ctx.translate(col*squareSize, (7-row)*squareSize);
+                ctx.translate(col*Square.size, (7-row)*Square.size);
             } else {
-                ctx.translate(col*squareSize, (row)*squareSize);
-            }    
-            
+                ctx.translate(col*Square.size, (row)*Square.size);
+            }       
 
             squares[row*8 + col].draw();
 
